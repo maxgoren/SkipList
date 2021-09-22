@@ -5,7 +5,8 @@
 #define MAX_LEVEL 6
 
 struct node {
-    int data;
+    void* key;
+    void* data;
     struct node *foward[MAX_LEVEL];
 };
 
@@ -15,9 +16,10 @@ struct SkipList {
      int size;
 };
 
-struct node* newNode(int data)
+struct node* newNode(void* key, void* data)
 {
     struct node *n = malloc(sizeof(struct node));
+    n->key = key;
     n->data = data;
     int i;
     for (i = 0; i < MAX_LEVEL; i++)
@@ -28,11 +30,11 @@ struct node* newNode(int data)
 struct SkipList* newSkipList()
 {
     struct SkipList* n = malloc(sizeof(struct SkipList));
-    n->z = newNode(INT_MAX);
+    n->z = newNode((int)INT_MAX, NULL);
     int i;
     for (i = 0; i < MAX_LEVEL; i++) 
     {
-        n->head[i] = newNode(INT_MIN);
+        n->head[i] = newNode((int)INT_MIN, NULL);
         n->z->foward[i] = n->z;
         n->head[i]->foward[i] = n->z;  
     }
@@ -51,17 +53,17 @@ unsigned int randLevel()
     return n;
 }
 
-void skipPush(struct SkipList **n, int data)
+void skipPush(struct SkipList **n, void* key, void* data)
 {
     printf("insert called on %d\n", data);
-    struct node *x = newNode(data);
+    struct node *x = newNode(key, data);
     int i, lev = randLevel();
     if (lev > MAX_LEVEL)
       lev = MAX_LEVEL-1;
     for (i = 0; i <= lev; i++)
     {
         struct node *itr = (*n)->head[i];
-        while (itr->foward[i] != (*n)->z && itr->foward[i]->data < data) {
+        while (itr->foward[i] != (*n)->z && itr->foward[i]->key < key) {
             itr = itr->foward[i];
         }
         x->foward[i] = itr->foward[i];
@@ -79,7 +81,7 @@ void skipShow(struct SkipList *x)
         {
         printf("Level %d: ", i);
         for (struct node *itr = x->head[i]->foward[i]; itr != x->z; itr = itr->foward[i])
-          printf("%d ", itr->data);
+          printf("%d ", itr->key);
         printf("\n");
         } else {
             printf("Level %d: (empty)\n", i);
@@ -92,7 +94,7 @@ unsigned int skipSearch(struct SkipList *n)
    int i;
    for (i = MAX_LEVEL - 1; i > -1; i--)
    {
-       
+
    }
 }
 
@@ -105,7 +107,7 @@ int main()
     {
       q = rand() % (45-1) - 1;
       printf("random number %d: %d\n", i, q);
-      skipPush(&mySkip, q);
+      skipPush(&mySkip, (int)q, (int)q);
     }
     skipShow(mySkip);
     return 0;
