@@ -89,26 +89,43 @@ void skipShow(struct SkipList *x)
     }
 }
 
-unsigned int skipSearch(struct SkipList *n)
+unsigned int skipSearch(struct SkipList *n, void* key)
 {
-   int i;
-   for (i = MAX_LEVEL - 1; i > -1; i--)
+   int i = 0;
+   while (i < MAX_LEVEL && n->head[i]->foward[i]->key < key) i++;
+   for (int p = i; i > -1; i--)
    {
-
+       for (struct node *itr = n->head[i]->foward[i]; itr != n->z; itr = itr->foward[i])
+       {
+           if (key == itr->key)
+             return 1;
+       }
    }
+   return -1;
 }
 
 int main()
 {
     srand(time(0));
-    int q, i;
+    int q, i, srchtest;
     struct SkipList *mySkip = newSkipList();
     for (i = 0; i < 13; i++)
     {
+      
       q = rand() % (45-1) - 1;
+      if (i == (rand()%(12-4)))
+        srchtest = q;
       printf("random number %d: %d\n", i, q);
       skipPush(&mySkip, (int)q, (int)q);
     }
     skipShow(mySkip);
+    if (skipSearch(mySkip, srchtest) == 1)
+      printf("%d was found\n", srchtest);
+    else
+      printf("not found.\n");
+    if (skipSearch(mySkip, 666) != -1)
+      printf("%d was found\n", 666);
+    else
+      printf("%d not found.\n", 666);
     return 0;
 }
